@@ -1,78 +1,102 @@
-import { useState } from 'react';
-import '../App.css';
+"use client"
+
+import { useState } from "react"
+import "../App.css"
 
 const UploadForm = () => {
-    const [name, setName] = useState('');
-    const [file, setFile] = useState(null);
-    const [fileName, setFileName] = useState('');
+  const [name, setName] = useState("")
+  const [file, setFile] = useState(null)
+  const [fileName, setFileName] = useState("")
+  const [uploading, setUploading] = useState(false)
+  const [message, setMessage] = useState("")
 
-    const handleNameChange = (e) => {
-        setName(e.target.value);
-    };
+  const handleNameChange = (e) => {
+    setName(e.target.value)
+  }
 
-    const handleFileChange = (e) => {
-        if (e.target.files[0]) {
-            setFile(e.target.files[0]);
-            setFileName(e.target.files[0].name);
-        }
-    };
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) {
+      setFile(e.target.files[0])
+      setFileName(e.target.files[0].name)
+    }
+  }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setUploading(true)
+    setMessage("")
 
-        console.log('Données soumises:', {
-            name,
-            file
-        });
-        setName('');
-        setFile(null);
-        setFileName('');
+    try {
+      const formData = new FormData()
+      formData.append("username", name)
+      formData.append("pdf", file)
 
-        document.getElementById('pdf-upload').value = '';
+      const response = await fetch("http://localhost:5000/documents/upload", {
+        method: "POST",
+        body: formData,
+      })
 
-        alert('Formulaire soumis avec succès!');
-    };
+      if (!response.ok) {
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`)
+      }
 
-    return (
-        <div className="upload-form-container">
-            <h2>Formulaire de téléchargement</h2>
-            <form onSubmit={handleSubmit} className="upload-form">
-                <div className="form-group">
-                    <label htmlFor="name">Nom:</label>
-                    <input
-                        type="text"
-                        id="name"
-                        value={name}
-                        onChange={handleNameChange}
-                        placeholder="Entrez votre nom"
-                        required
-                        className="form-control"
-                    />
-                </div>
+      const result = await response.json()
+      setMessage("✅ Fichier uploadé avec succès !")
 
-                <div className="form-group">
-                    <label htmlFor="pdf-upload">Fichier PDF:</label>
-                    <div className="file-input-container">
-                        <input
-                            type="file"
-                            id="pdf-upload"
-                            accept=".pdf"
-                            onChange={handleFileChange}
-                            required
-                            className="file-input"
-                        />
-                        {fileName && (
-                            <p className="file-name">Fichier sélectionné: {fileName}</p>
-                        )}
-                    </div>
-                </div>
+      // Reset form
+      setName("")
+      setFile(null)
+      setFileName("")
+      document.getElementById("pdf-upload").value = ""
+    } catch (error) {
+      setMessage(`❌ Erreur lors de l'upload: ${error.message}`)
+    } finally {
+      setUploading(false)
+    }
+  }
 
-                <button type="submit" className="submit-button">
-                    Envoyer
-                </button>
-            </form>
+  return (
+    <div className="upload-form-container">
+      <h2>Formulaire de téléchargement</h2>
+      <form onSubmit={handleSubmit} className="upload-form">
+        <div className="form-group">
+          <label htmlFor="name">Nom:</label>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={handleNameChange}
+            placeholder="Entrez votre nom"
+            required
+            className="form-control"
+            disabled={uploading}
+          />
         </div>
-    );
-};
 
-export default UploadForm;
+        <div className="form-group">
+          <label htmlFor="pdf-upload">Fichier PDF:</label>
+          <div className="file-input-container">
+            <input
+              type="file"
+              id="pdf-upload"
+              accept=".pdf"
+              onChange={handleFileChange}
+              required
+              className="file-input"
+              disabled={uploading}
+            />
+            {fileName && <p className="file-name">Fichier sélectionné: {fileName}</p>}
+          </div>
+        </div>
+
+        <button type="submit" className="submit-button" disabled={uploading}>
+          {uploading ? "Upload en cours..." : "Envoyer"}
+        </button>
+
+        {message && <div className={`message ${message.includes("✅") ? "success" : "error"}`}>{message}</div>}
+      </form>
+    </div>
+  )
+}
+
+export default UploadForm
