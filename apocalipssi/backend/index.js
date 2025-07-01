@@ -2,12 +2,20 @@ require("dotenv").config()
 const express = require("express")
 const mongoose = require("mongoose")
 const connectDB = require("./models/connection")
-
+const cors = require("cors")
 const app = express()
 app.use(express.json())
-const cors = require("cors")
+
 app.use(cors())
 connectDB()
+
+app.use(cors({
+  origin: 'http://localhost:5173',  // autorise uniquement ce front
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}))
+
+
 
 const conn = mongoose.connection
 conn.once("open", () => {
