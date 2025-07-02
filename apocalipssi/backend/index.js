@@ -2,6 +2,7 @@ require("dotenv").config()
 const express = require("express")
 const mongoose = require("mongoose")
 const connectDB = require("./models/connection")
+const userRoute = require("./routes/userRoute");
 const cors = require("cors")
 const app = express()
 app.use(express.json())
@@ -28,6 +29,7 @@ conn.once("open", () => {
 
 const documentsRoute = require("./routes/documentsRoute")
 app.use("/documents", documentsRoute)
+app.use("/users", userRoute);
 
 app.get("/", (req, res) => res.send("API en ligne 🚀"))
 
