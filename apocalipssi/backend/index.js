@@ -10,7 +10,7 @@ app.use(cors())
 connectDB()
 
 app.use(cors({
-  origin: 'http://localhost:5173',  // autorise uniquement ce front
+  origin: 'http://localhost',  // autorise uniquement ce front
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }))

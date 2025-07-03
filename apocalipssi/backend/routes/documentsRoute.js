@@ -24,5 +24,6 @@ router.get("/", documentsController.getAllDocuments)
 router.get("/download/:fileId", documentsController.downloadDocument)
 router.delete("/:id", documentsController.deleteDocument)
 router.get("/analyze/:id", documentsController.analyzeDocument)
+router.post("/chat/:id", documentsController.chatWithDocument) // Nouvelle route pour le chat
 
 module.exports = router
